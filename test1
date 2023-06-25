@@ -1,0 +1,48 @@
+from brian2 import *
+
+El = -60 * mV
+EK = -80 * mV
+ENa = 50 * mV
+gL = 10 * nS
+gK = 1000 * nS
+gNa = 10000 * nS
+C = 100 * pF
+taue = 5 * ms
+taui = 10 * ms
+we = 6 * nS
+wi = 67 * nS
+
+
+eqs = Equations('''dv/dt = (gL * (El - v) + ge * (EK - v) + gi * (ENa - v)) / C : volt
+dge/dt = -ge / taue : siemens
+dgi/dt = -gi / taui : siemens''')
+
+Pe = NeuronGroup(3200, model=eqs, threshold='v > -20*mV',
+                 reset='v=-60*mV', refractory=3*ms, method='euler')
+eqs = Equations('''dv/dt = (gL * (El - v) + ge * (EK - v) + gi * (ENa - v)) / C : volt
+dge/dt = -ge / taue : siemens
+dgi/dt = -gi / taui : siemens''')
+
+Pi = NeuronGroup(800, model=eqs, threshold='v > -20*mV',
+                 reset='v=-60*mV', refractory=3*ms, method='euler')
+Ce_to_Pe = Synapses(Pe, Pe,  on_pre='ge+=we',)
+Ce_to_Pe.connect(p=0.02)
+
+Ce_to_Pi = Synapses(Pe, Pi,  on_pre='ge+=we',)
+Ce_to_Pi.connect(p=0.02)
+
+Ci_to_Pe = Synapses(Pi, Pe,  on_pre='gi+=wi',)
+Ci_to_Pe.connect(p=0.02)
+
+Ci_to_Pi = Synapses(Pi, Pi,  on_pre='gi+=wi',)
+Ci_to_Pi.connect(p=0.02)
+
+Trace0 = StateMonitor(Pe, variables='v', record=[1, 10, 100])
+run(1 * second, report='text')
+plot(Trace0.t/ms, Trace0[1].v/mV)
+plot(Trace0.t/ms, Trace0[10].v/mV)
+plot(Trace0.t/ms, Trace0[100].v/mV)
+
+xlabel('t (ms)')
+ylabel('v (mV)')
+show()

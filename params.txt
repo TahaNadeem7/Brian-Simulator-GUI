@@ -1,0 +1,17 @@
+El = -60 * mV
+EK = -80 * mV
+ENa = 50 * mV
+gL = 10 * nS
+gK = 1000 * nS
+gNa = 10000 * nS
+C = 100 * pF
+taue = 5 * ms
+taui = 10 * ms
+we = 6 * nS
+wi = 67 * nS
+
+
+
+dv/dt = (gL * (El - v) + ge * (EK - v) + gi * (ENa - v)) / C : volt (unless refractory)
+dge/dt = -ge / taue : siemens
+dgi/dt = -gi / taui : siemens
